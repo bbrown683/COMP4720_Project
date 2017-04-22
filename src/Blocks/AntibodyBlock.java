@@ -28,11 +28,11 @@ public class AntibodyBlock extends ColorBlock {
 	public boolean Inspect(ColorBlock colorBlock) {
 		if(colorBlock instanceof MutatedCellBlock) {
 			((MutatedCellBlock)colorBlock).Die();
-			System.out.println("Mutated.");
+			//System.out.println("Mutated.");
 			return true;
 		}
 		else if(colorBlock instanceof NormalCellBlock) {
-			System.out.println("Normal.");
+			//System.out.println("Normal.");
 			return true;
 		}
 		return false;

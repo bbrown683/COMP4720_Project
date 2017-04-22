@@ -15,13 +15,11 @@ public class SimulatedAnnealing {
 	
 	private AntibodyBlock antibody;
 	private Stack<ColorBlock> cells;
-	private HashMap<Location, ColorBlock> cells2;
-	
+
 	public SimulatedAnnealing(GridAppFrame gui) {
 		this.gui = gui;
 		random = new Random(2);
 		cells = new Stack<ColorBlock>();
-		cells2 = new HashMap<Location, ColorBlock>();
 	}
 	
     private Location GenerateLocation(Grid grid) {
@@ -34,14 +32,15 @@ public class SimulatedAnnealing {
     	return location;
     }
     
-    // Returns the euclidean distance between the cell and the virus (energy).
-    private float cost(Location antibody, Location virus) {
-    	return (float)Math.sqrt(Math.abs(Math.abs(virus.row() - antibody.row()) * Math.abs(virus.row()) - antibody.row())) + 
-    		(Math.abs(virus.col() - antibody.col()) * Math.abs(virus.col() - antibody.col()));
+    // Returns the euclidean distance between the cell and the target.
+    private float Cost(Location current, Location target) {
+    	return (float)Math.sqrt(
+    		Math.abs((target.row() - current.row()) * (target.row() - current.row())) + 
+    		Math.abs((target.col() - current.col()) * (target.col() - current.col())));
     }
         
     // Returns a random neighbor at the specified location.
-    private Location neighbor(Grid grid, Location location) {
+    private Location Neighbor(Grid grid, Location location) {
     	Location neighbor = new Location(0, 0);
     	do {
     		neighbor = grid.getNeighbor(location, Direction.randomDirection());
@@ -50,58 +49,69 @@ public class SimulatedAnnealing {
     }
     
     // Returns the acceptance probability for the new location.
-    private float probability(float current_cost, float next_cost, float temp) {
-    	return (float)Math.exp((current_cost - next_cost) / temp);
+    private double Probability(float current_cost, float next_cost, float temp) {
+    	return Math.exp((current_cost - next_cost) / temp);
     }
 	
-    private float temperature(float k, float k_max) {
+    private float Temperature(int k, int k_max) {
     	if(cells.isEmpty())
     		return 0.0f;
     	else
-    		return k / k_max;
+    		return (float)k / k_max;
     }
     
 	public boolean Simulate() {
-    	Grid grid = gui.getGrid();
+		Grid grid = gui.getGrid();
     	grid.removeAll();
     	
     	antibody = new AntibodyBlock(gui, GenerateLocation(grid));
-    	Location mutatedLocation = GenerateLocation(grid);
-    	cells2.put(mutatedLocation, new MutatedCellBlock(gui, mutatedLocation));
     	cells.push(new MutatedCellBlock(gui, GenerateLocation(grid))); // push a mutated cell.
-    	for(int i = 0; i < 5; i++) {
-    		Location normalLocation = GenerateLocation(grid);
-    		cells2.put(normalLocation, new NormalCellBlock(gui, normalLocation));
-    	}
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	gui.showGrid();
 		
-    	float k = 1.0f;
-    	float k_max = Short.MAX_VALUE;
+    	int k = 1;
+    	int k_max = Short.MAX_VALUE;
     	
     	while (k < k_max) {
-    		float t = temperature(k, k_max);
-    		System.out.println(t);
+    		// Getting temperature value and ensuring t != 0 
+    		// as it would suggest the solution has been found already.
+    		float t = Temperature(k, k_max);
     		if(t == 0.0f)
     			return true;
     		
-    		Location next = neighbor(grid, antibody.location());
-    		float current_cost = cost(antibody.location(), cells.peek().location());
-    		float next_cost = cost(next, cells.peek().location());
+    		// Get the random neighbor to the location.
+    		Location next = Neighbor(grid, antibody.location());
     		
-    		if(probability(current_cost, next_cost, t) > Math.random()) {
+    		// Calculate the current cost and the suggested random locations cost.
+    		float current_cost = Cost(antibody.location(), cells.peek().location());
+    		float next_cost = Cost(next, cells.peek().location());    		
+    		
+    		// Pass cost into accepted probability function and compare against a random number.
+    		if(Probability(current_cost, next_cost, t) > Math.random()) {
+    			// Do not consider move if we are next to a neighboring cell.
+    			boolean consider = true;
     			for(Location location : antibody.GetNeighbors()) {
-    				if(antibody.Inspect((ColorBlock)grid.objectAt(location))) {
-    					cells.pop();
+    				// Check to see if stack is empty due to empty stack exceptions.
+    				if(!cells.isEmpty()) {
+    					if(cells.peek().location().equals(location) && 
+    							antibody.Inspect((ColorBlock)grid.objectAt(location))) {
+    						cells.pop();
+    						consider = false;
+    					}
     				}
     			}
-    			antibody.Move(next);
+    			
+    			// If move is being considered move to the next location.
+    			if(consider)
+    				antibody.Move(next);
     		}
+    		System.out.println(k);
     		k++;
     	}
+    	
     	return false;
 	}
 }

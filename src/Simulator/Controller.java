@@ -1,32 +1,40 @@
 package Simulator;
 
 import Algorithms.*;
+import Blocks.*;
 
-import edu.kzoo.grid.gui.EnabledDisabledStates;
-import edu.kzoo.grid.gui.GridAppFrame;
-import edu.kzoo.grid.gui.ThreadedControlButton;
-import edu.kzoo.grid.gui.nuggets.NewBoundedGridButton;
+import edu.kzoo.grid.*;
+import edu.kzoo.grid.gui.*;
 
-import java.awt.Color;
-
-import java.awt.Color;
-
-
+import java.awt.*;
+import java.util.*;
 
 public class Controller {
-	// Instance variable(s) for each Controller instance.
     private GridAppFrame gui;
-    /** Constructs a new Controller object. **/
+    
     public Controller(GridAppFrame gui) {
         this.gui = gui;
     }
-       
+        
     public void SimulatedAnnealing() {
-    	SimulatedAnnealing sa = new SimulatedAnnealing(gui);
-    	System.out.println(sa.Simulate());
+    	// Algorithm Analysis
+    	// Iterations: 87 average, Best: 66
+    	// Runtime: 13.134 +- 1ms
+    	SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(gui);
+    	
+    	long start = System.currentTimeMillis();
+    	System.out.println(simulatedAnnealing.Simulate());
+    	System.out.println((System.currentTimeMillis() - start) / 1000.0);
     }
     
     public void Genetic() {
+    	// Algorithm Analysis
+    	// Iterations: 87 average, Best: 58
+    	// Runtime: 0.25ms +- 0.01
+    	Genetic genetic = new Genetic(gui);
     	
+       	long start = System.currentTimeMillis();
+    	System.out.println(genetic.Simulate());
+    	System.out.println((System.currentTimeMillis() - start) / 1000.0);
     }
 }
