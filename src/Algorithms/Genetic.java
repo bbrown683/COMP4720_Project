@@ -42,7 +42,7 @@ public class Genetic {
     }
     
     private float MaximumCost(Location current, Location target) {
-    	return Cost(current, target) + (0.50f * Cost(current, target));
+    	return Cost(current, target) + (0.35f * Cost(current, target));
     }
     
     private Location SingleMoveLocation(String move, Location new_location) {
@@ -61,7 +61,7 @@ public class Genetic {
            		location = new Location(location.row(), location.col() - 1);
             break;
         case "11":
-            if(IsValidAndEmpty(location = new Location(location.row(), location.col() + 1)))
+            if(IsValidAndEmpty(new Location(location.row(), location.col() + 1)))
                 location = new Location(location.row(), location.col() + 1);
             break;
     	}
@@ -69,7 +69,7 @@ public class Genetic {
     	return location;
     }
     
-    private Location TotalMoveLocation(String chromosome) {
+    private Location TotalMoveLocation(String chromosome, boolean moveAntibody) {
     	Location initial = antibody.location();
     	    	
     	String current = "";
@@ -78,18 +78,16 @@ public class Genetic {
     		current = overall.substring(0, 2);
     		overall = overall.substring(2);
     		initial = SingleMoveLocation(current, initial);
+    		if(moveAntibody)
+    			antibody.Move(initial);
     	}
     	
     	return initial;
     }
 
-    private float Fitness(String chromosome) {
-    	// Set an accepted distance of about 1.5 times the original.
-    	// This gives us some leeway in the population. 
-    	float cost = Cost(antibody.location(), cells.peek().location());
-    	float max_cost = cost + (0.5f * cost);
- 
-    	return -Cost(TotalMoveLocation(chromosome), cells.peek().location()) - (max_cost / 100.0f);
+    private float Fitness(String chromosome) { 
+    	return -1 * Cost(TotalMoveLocation(chromosome, false), cells.peek().location()) - 
+    			(MaximumCost(antibody.location(), cells.peek().location()) / 100.0f);
     }
     
     private Location GenerateLocation(Grid grid) {
@@ -115,21 +113,15 @@ public class Genetic {
     
     private void Populate(Location initial, Location target) {
     	population.clear();
-    	
-    	// Set an accepted distance of about 1.5 times the original.
-    	// This gives us some leeway in the population. 
-    	float cost = Cost(initial, target);
-    	float max_cost = cost + (0.5f * cost);
-    	
+    	    	
     	// up down left right in bitstring notation.
     	String[] moves = {"00", "01", "10", "11"};
     	
     	for(int i = 0; i < Byte.MAX_VALUE; i++) {
     		String chromosome = "";
-	    	for(int j = 0; j < Math.floor(max_cost); j++) {
+	    	for(int j = 0; j < Math.floor(MaximumCost(initial, target)); j++) {
 	    		chromosome += moves[random.nextInt(3)];
 	    	}
-	    	System.out.println(chromosome);
 	    	population.add(chromosome);	    	
     	}
     }
@@ -146,14 +138,13 @@ public class Genetic {
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	gui.showGrid();
 		
+    	
     	while(!cells.isEmpty()) {
 	    	// Initialize our population.
 	    	Populate(antibody.location(), cells.peek().location());
-			
 	    	for(int i = 0; i < Byte.MAX_VALUE; i++) {
 				ArrayList<String> new_population = new ArrayList<String>();
 				for(int j = 0; j < population.size(); j++) {	
-					System.out.println(i + " : " +j );
 					String x = Selection(population);
 					String y = Selection(population);
 					String child = Crossover(x, y);
@@ -173,7 +164,7 @@ public class Genetic {
 	    			fittest = population.get(i);
 	    	}
 	    	
-	    	antibody.Move(TotalMoveLocation(fittest));
+	    	TotalMoveLocation(fittest, true);
 			for(Location location : antibody.GetNeighbors()) {
 				// Check to see if stack is empty due to empty stack exceptions.
 				if(!cells.isEmpty()) {
