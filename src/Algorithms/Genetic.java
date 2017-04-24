@@ -71,7 +71,6 @@ public class Genetic {
     
     private Location TotalMoveLocation(String chromosome, boolean moveAntibody) {
     	Location initial = antibody.location();
-    	    	
     	String current = "";
     	String overall = chromosome;
     	for(int i = 0; i < Math.floor(MaximumCost(antibody.location(), cells.peek().location())); i++) {
@@ -81,7 +80,6 @@ public class Genetic {
     		if(moveAntibody)
     			antibody.Move(initial);
     	}
-    	
     	return initial;
     }
 
@@ -119,9 +117,8 @@ public class Genetic {
     	
     	for(int i = 0; i < Byte.MAX_VALUE; i++) {
     		String chromosome = "";
-	    	for(int j = 0; j < Math.floor(MaximumCost(initial, target)); j++) {
+	    	for(int j = 0; j < Math.floor(MaximumCost(initial, target)); j++)
 	    		chromosome += moves[random.nextInt(3)];
-	    	}
 	    	population.add(chromosome);	    	
     	}
     }
@@ -138,9 +135,8 @@ public class Genetic {
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	gui.showGrid();
 		
-    	
     	while(!cells.isEmpty()) {
-	    	// Initialize our population.
+    		// Initialize our population.
 	    	Populate(antibody.location(), cells.peek().location());
 	    	for(int i = 0; i < Byte.MAX_VALUE; i++) {
 				ArrayList<String> new_population = new ArrayList<String>();
@@ -169,11 +165,10 @@ public class Genetic {
 				// Check to see if stack is empty due to empty stack exceptions.
 				if(!cells.isEmpty()) {
 					if(cells.peek().location().equals(location) && 
-							antibody.Inspect((ColorBlock)grid.objectAt(location))) {
-						cells.pop();
-					}
+							antibody.Inspect((ColorBlock)grid.objectAt(location)))
+						cells.pop();	
 				}
-			}	
+			}
     	}
 		return false;
 	}

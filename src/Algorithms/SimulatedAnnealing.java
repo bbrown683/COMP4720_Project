@@ -108,7 +108,6 @@ public class SimulatedAnnealing {
     			if(consider)
     				antibody.Move(next);
     		}
-    		System.out.println(k);
     		k++;
     	}
     	
