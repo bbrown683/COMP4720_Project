@@ -32,11 +32,9 @@ public class SimulatedAnnealing {
     	return location;
     }
     
-    // Returns the euclidean distance between the cell and the target.
+    // Returns the taxicab geometry distance between the cell and the target.
     private float Cost(Location current, Location target) {
-    	return (float)Math.sqrt(
-    		Math.abs((target.row() - current.row()) * (target.row() - current.row())) + 
-    		Math.abs((target.col() - current.col()) * (target.col() - current.col())));
+    	return Math.abs(target.row() - current.row()) + Math.abs(target.col() - current.col());
     }
         
     // Returns a random neighbor at the specified location.
@@ -73,7 +71,7 @@ public class SimulatedAnnealing {
     	gui.showGrid();
 		
     	int k = 1;
-    	int k_max = Short.MAX_VALUE;
+    	int k_max = Short.MAX_VALUE; 
     	
     	// Get initial time.
     	long time = System.nanoTime();
@@ -84,7 +82,7 @@ public class SimulatedAnnealing {
     		float t = Temperature(k, k_max);
     		if(t == 0.0f)
     			return true;
-    		
+
     		// Get the random neighbor to the location.
     		Location next = Neighbor(grid, antibody.location());
     		
@@ -115,7 +113,6 @@ public class SimulatedAnnealing {
     		// Record time of each interval.
     		if(consider)
     			System.out.println(k + "\t" + Cost(antibody.location(), cells.peek().location()));
-
     		k++;
     	}
     	

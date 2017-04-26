@@ -34,15 +34,9 @@ public class Genetic {
     	return x.substring(0, crossover_point) + y.substring(crossover_point);
     }
     
-    // Returns the euclidean distance between the cell and the target.
+    // Returns the taxicab geometry distance between the cell and the target.
     private float Cost(Location current, Location target) {
-    	return (float)Math.sqrt(
-    		Math.abs((target.row() - current.row()) * (target.row() - current.row())) + 
-    		Math.abs((target.col() - current.col()) * (target.col() - current.col())));
-    }
-    
-    private float MaximumCost(Location current, Location target) {
-    	return Cost(current, target) + (0.35f * Cost(current, target));
+    	return Math.abs(target.row() - current.row()) + Math.abs(target.col() - current.col());
     }
     
     private Location SingleMoveLocation(String move, Location new_location) {
@@ -73,7 +67,7 @@ public class Genetic {
     	Location initial = antibody.location();
     	String current = "";
     	String overall = chromosome;
-    	for(int i = 0; i < Math.floor(MaximumCost(antibody.location(), cells.peek().location())); i++) {
+    	for(int i = 0; i < Cost(antibody.location(), cells.peek().location()); i++) {
     		current = overall.substring(0, 2);
     		overall = overall.substring(2);
     		initial = SingleMoveLocation(current, initial);
@@ -84,8 +78,8 @@ public class Genetic {
     }
 
     private float Fitness(String chromosome) { 
-    	return MaximumCost(antibody.location(), cells.peek().location())
-    			- Cost(TotalMoveLocation(chromosome, false), cells.peek().location());
+    	 return Cost(antibody.location(), cells.peek().location())
+    	 - Cost(TotalMoveLocation(chromosome, false), cells.peek().location());	 
     }
     
     private Location GenerateLocation(Grid grid) {
@@ -109,7 +103,7 @@ public class Genetic {
     	return population.get(random.nextInt(population.size()));
     }
     
-    private float SumPopulation(ArrayList<String> population) {
+    private float MeanPopulation(ArrayList<String> population) {
     	float sum = 0;
     	for(int i = 0; i < population.size(); i++) {
     		sum += Fitness(population.get(i));
@@ -125,7 +119,7 @@ public class Genetic {
     	
     	for(int i = 0; i < Byte.MAX_VALUE; i++) {
     		String chromosome = "";
-	    	for(int j = 0; j < Math.floor(MaximumCost(initial, target)); j++)
+    		for(int j = 0; j < Cost(initial, target); j++)
 	    		chromosome += moves[random.nextInt(3)];
 	    	population.add(chromosome);	    	
     	}
@@ -143,6 +137,8 @@ public class Genetic {
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	gui.showGrid();
 		
+    	System.out.println(Cost(antibody.location(), cells.peek().location()));
+    	
     	int k = 1;
     	int k_max = Byte.MAX_VALUE;
     	while(k < k_max) {
@@ -162,7 +158,7 @@ public class Genetic {
 					new_population.add(child);
 				}
 				population = new_population;
-				System.out.println(i + "\t" + SumPopulation(population));
+				System.out.println(i + "\t" + MeanPopulation(population));
 	    	}
 	    	
 	    	// Find fittest of the population.

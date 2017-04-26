@@ -21,7 +21,7 @@ public class Controller {
     	// Iterations: 87 average, Best: 66
     	// Runtime: 13.134 +- 1ms
     	int success = 0;
-    	for(int i = 0; i < 1000; i++) {
+    	for(int i = 0; i < 10; i++) {
     		SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(gui);
     		if(simulatedAnnealing.Simulate())
     			success++;
@@ -33,7 +33,7 @@ public class Controller {
     	System.out.println((System.currentTimeMillis() - start) / 1000.0); 
     	*/
     	
-    	System.out.println("Success %:" + (success / 1000.0f) * 100);
+    	//System.out.println("Success %:" + (success / 1000.0f) * 100);
     }
     
     public void Genetic() {
@@ -41,7 +41,7 @@ public class Controller {
     	// Iterations: 87 average, Best: 58
     	// Runtime: 0.25ms +- 0.01
     	int success = 0;
-    	for(int i = 0; i < 1000; i++) {
+    	for(int i = 0; i < 100; i++) {
     		Genetic genetic = new Genetic(gui);
     		try {
     		if(genetic.Simulate())
@@ -57,6 +57,6 @@ public class Controller {
     	System.out.println(genetic.Simulate());
     	System.out.println((System.currentTimeMillis() - start) / 1000.0);
     	*/
-        System.out.println("Success %:" + (success / 1000.0f) * 100);
+        //System.out.println("Success %:" + (success / 10.0f) * 100);
     }
 }
