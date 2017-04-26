@@ -18,7 +18,7 @@ public class SimulatedAnnealing {
 
 	public SimulatedAnnealing(GridAppFrame gui) {
 		this.gui = gui;
-		random = new Random(2);
+		random = new Random();
 		cells = new Stack<ColorBlock>();
 	}
 	
@@ -75,7 +75,10 @@ public class SimulatedAnnealing {
     	int k = 1;
     	int k_max = Short.MAX_VALUE;
     	
+    	// Get initial time.
+    	long time = System.nanoTime();
     	while (k < k_max) {
+    		boolean consider = true;
     		// Getting temperature value and ensuring t != 0 
     		// as it would suggest the solution has been found already.
     		float t = Temperature(k, k_max);
@@ -92,13 +95,13 @@ public class SimulatedAnnealing {
     		// Pass cost into accepted probability function and compare against a random number.
     		if(Probability(current_cost, next_cost, t) > Math.random()) {
     			// Do not consider move if we are next to a neighboring cell.
-    			boolean consider = true;
     			for(Location location : antibody.GetNeighbors()) {
     				// Check to see if stack is empty due to empty stack exceptions.
     				if(!cells.isEmpty()) {
     					if(cells.peek().location().equals(location) && 
     							antibody.Inspect((ColorBlock)grid.objectAt(location))) {
     						cells.pop();
+    						time = System.nanoTime();
     						consider = false;
     					}
     				}
@@ -108,6 +111,11 @@ public class SimulatedAnnealing {
     			if(consider)
     				antibody.Move(next);
     		}
+    		
+    		// Record time of each interval.
+    		if(consider)
+    			System.out.println(k + "\t" + Cost(antibody.location(), cells.peek().location()));
+
     		k++;
     	}
     	

@@ -17,7 +17,7 @@ public class Genetic {
     
     public Genetic(GridAppFrame gui) {
         this.gui = gui;
-        random = new Random(2);
+        random = new Random();
         cells = new Stack<ColorBlock>();
         population = new ArrayList<String>();
     }
@@ -84,8 +84,8 @@ public class Genetic {
     }
 
     private float Fitness(String chromosome) { 
-    	return -1 * Cost(TotalMoveLocation(chromosome, false), cells.peek().location()) - 
-    			(MaximumCost(antibody.location(), cells.peek().location()) / 100.0f);
+    	return MaximumCost(antibody.location(), cells.peek().location())
+    			- Cost(TotalMoveLocation(chromosome, false), cells.peek().location());
     }
     
     private Location GenerateLocation(Grid grid) {
@@ -107,6 +107,14 @@ public class Genetic {
     // Performs random selection.
     private String Selection(ArrayList<String> population) {
     	return population.get(random.nextInt(population.size()));
+    }
+    
+    private float SumPopulation(ArrayList<String> population) {
+    	float sum = 0;
+    	for(int i = 0; i < population.size(); i++) {
+    		sum += Fitness(population.get(i));
+    	}
+    	return sum / population.size();
     }
     
     private void Populate(Location initial, Location target) {
@@ -135,7 +143,12 @@ public class Genetic {
     	cells.push(new NormalCellBlock(gui, GenerateLocation(grid)));
     	gui.showGrid();
 		
-    	while(!cells.isEmpty()) {
+    	int k = 1;
+    	int k_max = Byte.MAX_VALUE;
+    	while(k < k_max) {
+    		if(cells.isEmpty())
+    			break;
+    		
     		// Initialize our population.
 	    	Populate(antibody.location(), cells.peek().location());
 	    	for(int i = 0; i < Byte.MAX_VALUE; i++) {
@@ -149,6 +162,7 @@ public class Genetic {
 					new_population.add(child);
 				}
 				population = new_population;
+				System.out.println(i + "\t" + SumPopulation(population));
 	    	}
 	    	
 	    	// Find fittest of the population.
@@ -169,7 +183,12 @@ public class Genetic {
 						cells.pop();	
 				}
 			}
+			k++;
     	}
-		return false;
+    	
+    	if(cells.isEmpty())
+    		return true;
+    	else
+    		return false;
 	}
 }
